@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
 
-class RegisterUserRequest(BaseModel):
+class UserCreateSchema(BaseModel):
     name: str
     surname: str
     age: int
 
 
-class UserModel(BaseModel):
+class UserSchema(BaseModel):
     id: int
     name: str
     surname: str

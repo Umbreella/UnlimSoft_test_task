@@ -1,83 +1,81 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-from external_requests import GetWeatherRequest
+from contextlib import asynccontextmanager
 
-# Создание сессии
-SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base
+from typing_extensions import AsyncIterator
 
-# Подключение базы (с автоматической генерацией моделей)
-Base = declarative_base()
+from src.config import config
 
+BASE = declarative_base()
 
-class City(Base):
-    """
-    Город
-    """
-    __tablename__ = 'city'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, unique=True, nullable=False)
-
-    @property
-    def weather(self) -> str:
-        """
-        Возвращает текущую погоду в этом городе
-        """
-        r = GetWeatherRequest()
-        weather = r.get_weather(self.name)
-        return weather
-
-    def __repr__(self):
-        return f'<Город "{self.name}">'
+DATABASE_URL = 'postgresql+asyncpg://%s:%s@%s:%s/%s' % (
+    config.POSTGRES_USERNAME,
+    config.POSTGRES_PASSWORD,
+    config.POSTGRES_HOST,
+    config.POSTGRES_PORT,
+    config.POSTGRES_DB,
+)
 
 
-class User(Base):
-    """
-    Пользователь
-    """
-    __tablename__ = 'user'
+class Database:
+    def __init__(self):
+        self._engine: AsyncEngine | None = None
+        self._sessionmaker: async_sessionmaker | None = None
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    surname = Column(String, nullable=False)
-    age = Column(Integer, nullable=True)
+    def init_db(self, database_url: str = DATABASE_URL) -> None:
+        self._engine = create_async_engine(database_url)
+        self._sessionmaker = async_sessionmaker(
+            autocommit=False,
+            bind=self._engine,
+        )
 
-    def __repr__(self):
-        return f'<Пользователь {self.surname} {self.name}>'
+    async def close(self):
+        assert self._engine is not None, 'Database is not initialized'
+
+        await self._engine.dispose()
+        self._engine = None
+        self._sessionmaker = None
+
+    @asynccontextmanager
+    async def connect(self) -> AsyncIterator[AsyncConnection]:
+        assert self._engine is not None, 'Database is not initialized'
+
+        async with self._engine.begin() as connection:
+            try:
+                yield connection
+            except Exception:
+                await connection.rollback()
+                raise
+
+    @asynccontextmanager
+    async def session(self) -> AsyncIterator[AsyncSession]:
+        assert self._sessionmaker is not None, 'Database is not initialized'
+
+        session = self._sessionmaker()
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+    async def create_all(self, connection: AsyncConnection):
+        await connection.run_sync(BASE.metadata.create_all)
+
+    async def drop_all(self, connection: AsyncConnection):
+        await connection.run_sync(BASE.metadata.drop_all)
 
 
-class Picnic(Base):
-    """
-    Пикник
-    """
-    __tablename__ = 'picnic'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    city_id = Column(Integer, ForeignKey('city.id'), nullable=False)
-    time = Column(DateTime, nullable=False)
-
-    def __repr__(self):
-        return f'<Пикник {self.id}>'
+database = Database()
 
 
-class PicnicRegistration(Base):
-    """
-    Регистрация пользователя на пикник
-    """
-    __tablename__ = 'picnic_registration'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    picnic_id = Column(Integer, ForeignKey('picnic.id'), nullable=False)
-
-    user = relationship('User', backref='picnics')
-    picnic = relationship('Picnic', backref='users')
-
-    def __repr__(self):
-        return f'<Регистрация {self.id}>'
-
-
-Base.metadata.create_all(bind=engine)
+async def get_db():
+    async with database.session() as session, session.begin():
+        yield session

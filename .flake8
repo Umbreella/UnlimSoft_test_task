@@ -7,5 +7,7 @@ exclude =
     ./*venv/*,
     ./*pytest_cache/*,
     ./migrations/*,
+    */__init__.py,
+    main.py,
 
 max-complexity = 10
