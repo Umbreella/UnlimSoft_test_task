@@ -2,29 +2,26 @@ version: "3.8"
 
 services:
   backend:
+    build: .
     restart: always
-    depends_on:
-      - postgres
-    build:
-      context: .
-      target: backend
+    ports:
+      - 8000:8000
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_NAME=testcrt
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=password
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
-    ports:
-    - 8000:8000
+    depends_on:
+      - postgres
     networks:
       backend:
 
 
   postgres:
-    restart: always
     image: postgres:13-alpine
     container_name: postgres
+    restart: always
     environment:
       - POSTGRES_DB=testcrt
       - POSTGRES_USER=postgres
