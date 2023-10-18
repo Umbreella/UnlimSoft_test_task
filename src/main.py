@@ -16,62 +16,6 @@
 #
 # app = FastAPI()
 #
-#
-# @app.get('/create-city/', summary='Create City', description='Создание города по его названию')
-# def create_city(city: str = Query(description="Название города", default=None)):
-#     if city is None:
-#         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
-#     check = CheckCityExisting()
-#     if not check.check_existing(city):
-#         raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
-#
-#     city_object = Session().query(City).filter(City.name == city.capitalize()).first()
-#     if city_object is None:
-#         city_object = City(name=city.capitalize())
-#         s = Session()
-#         s.add(city_object)
-#         s.commit()
-#
-#     return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather}
-#
-#
-# @app.post('/get-cities/', summary='Get Cities')
-# def cities_list(q: str = Query(description="Название города", default=None)):
-#     """
-#     Получение списка городов
-#     """
-#     cities = Session().query(City).all()
-#
-#     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
-#
-#
-# @app.post('/users-list/', summary='')
-# def users_list():
-#     """
-#     Список пользователей
-#     """
-#     users = Session().query(User).all()
-#     return [{
-#         'id': user.id,
-#         'name': user.name,
-#         'surname': user.surname,
-#         'age': user.age,
-#     } for user in users]
-#
-#
-# @app.post('/register-user/', summary='CreateUser', response_model=UserModel)
-# def register_user(user: RegisterUserRequest):
-#     """
-#     Регистрация пользователя
-#     """
-#     user_object = User(**user.dict())
-#     s = Session()
-#     s.add(user_object)
-#     s.commit()
-#
-#     return UserModel.from_orm(user_object)
-#
-#
 # @app.get('/all-picnics/', summary='All Picnics', tags=['picnic'])
 # def all_picnics(datetime: dt.datetime = Query(default=None, description='Время пикника (по умолчанию не задано)'),
 #                 past: bool = Query(default=True, description='Включая уже прошедшие пикники')):

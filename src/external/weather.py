@@ -1,7 +1,7 @@
-from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlencode
 
+from fastapi import status
 from httpx import AsyncClient, Response
 
 
@@ -20,7 +20,7 @@ class WeatherAPI:
 
         response: Response = await self._client.get(f'?{urlencode(params)}')
 
-        if response.status_code != HTTPStatus.OK:
+        if response.status_code != status.HTTP_200_OK:
             return None
 
         data: dict[str, Any] = response.json()

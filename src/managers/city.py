@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import select, update
+from sqlalchemy import Sequence, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +13,17 @@ class CityManager(BaseManager):
     model = City
 
     @classmethod
+    async def get_all(
+        cls, session: AsyncSession, search: str | None = None,
+    ) -> Sequence[City]:
+        query = select(City)
+
+        if search:
+            query = query.where(City.name.contains(search))
+
+        return (await session.execute(query)).scalars().all()
+
+    @classmethod
     async def create(
         cls,
         data: CityCreateSchema,
@@ -23,9 +34,20 @@ class CityManager(BaseManager):
         )).scalar_one_or_none()
 
         if city is not None:
-            raise Exception('city name duplicate.')
+            raise Exception(
+                {
+                    'name': 'This value is exists.',
+                },
+            )
 
         weather = await WeatherAPI().get_current_weather_by_city(data.name)
+
+        if not weather:
+            raise Exception(
+                {
+                    'name': 'This value is not City.',
+                },
+            )
 
         query = insert(cls.model).values(
             **data.model_dump(),
