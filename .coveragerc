@@ -1,0 +1,20 @@
+[run]
+concurrency = greenlet
+
+source = .
+omit =
+    ./*venv/*,
+    */__init__.py,
+    ./*.py,
+    ./src/*.py,
+    ./src/api/urls.py,
+    ./tests/*,
+
+[report]
+omit =
+    ./*venv/*,
+    */__init__.py,
+    ./*.py,
+    ./src/*.py,
+    ./src/api/urls.py,
+    ./tests/*,

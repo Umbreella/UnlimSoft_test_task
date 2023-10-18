@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
 from src.database import BASE
-
-# from src.external_requests import GetWeatherRequest
 
 
 class City(BASE):
@@ -13,15 +12,9 @@ class City(BASE):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
+    weather = Column(String, nullable=True)
 
-    # @property
-    # def weather(self) -> str:
-    #     """
-    #     Возвращает текущую погоду в этом городе
-    #     """
-    #     r = GetWeatherRequest()
-    #     weather = r.get_weather(self.name)
-    #     return weather
+    picnics = relationship('Picnic', back_populates='city')
 
     def __repr__(self):
         return f'<City "{self.name}">'

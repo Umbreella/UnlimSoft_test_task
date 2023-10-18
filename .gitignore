@@ -1,3 +1,6 @@
 /.enw/
 /.idea/
 *__pycache__*
+/htmlcov/
+/.coverage
+*/.pytest_cache/

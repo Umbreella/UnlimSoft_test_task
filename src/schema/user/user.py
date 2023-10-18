@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UserCreateSchema(BaseModel):
@@ -8,10 +8,9 @@ class UserCreateSchema(BaseModel):
 
 
 class UserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     surname: str
     age: int
-
-    class Config:
-        orm_mode = True
