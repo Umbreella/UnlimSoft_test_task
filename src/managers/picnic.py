@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence, Type
 
 from sqlalchemy import select
@@ -15,7 +16,12 @@ class PicnicManager(BaseManager):
     model = Picnic
 
     @classmethod
-    async def get_all(cls, session: AsyncSession) -> Sequence[Type[BASE]]:
+    async def get_all(
+        cls,
+        session: AsyncSession,
+        time: datetime | None = None,
+        past: bool | None = False,
+    ) -> Sequence[Type[BASE]]:
         query = select(
             Picnic,
         ).options(
@@ -23,7 +29,13 @@ class PicnicManager(BaseManager):
             joinedload(Picnic.users),
         )
 
-        return (await session.execute(query)).scalars().all()
+        if time:
+            query = query.where(Picnic.time == time)
+
+        if not past:
+            query = query.where(Picnic.time >= datetime.now())
+
+        return (await session.execute(query)).unique().scalars().all()
 
     @classmethod
     async def create(
@@ -37,6 +49,10 @@ class PicnicManager(BaseManager):
         )
 
         if city is None:
-            raise Exception('city: Not found.')
+            raise Exception(
+                {
+                    'city_id': 'Not found.',
+                },
+            )
 
         return await super().create(data=data, session=session)

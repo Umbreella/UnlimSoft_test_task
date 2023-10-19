@@ -7,7 +7,7 @@ from src.schema.city import CitySchema
 
 class PicnicCreateSchema(BaseModel):
     city_id: int
-    time: datetime | None
+    time: datetime = datetime.now()
 
 
 class PicnicSchema(BaseModel):
