@@ -22,6 +22,7 @@ class Picnic(BASE):
         secondary='user_picnics',
         back_populates='picnics',
     )
+    all_user_picnics = relationship('UserPicnic', back_populates='picnic')
 
     def __repr__(self):
         return f'<Picnic {self.id}>'

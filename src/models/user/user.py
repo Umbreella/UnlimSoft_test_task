@@ -15,6 +15,7 @@ class User(BASE):
     surname: str = Column(String, nullable=False)
     age: str = Column(Integer, nullable=True)
 
+    my_user_picnics = relationship('UserPicnic', back_populates='user')
     picnics = relationship(
         'Picnic',
         secondary='user_picnics',

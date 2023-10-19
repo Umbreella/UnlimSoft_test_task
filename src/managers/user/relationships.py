@@ -24,7 +24,11 @@ class UserPicnicManager(BaseManager):
         )
 
         if user is None:
-            raise Exception('user not found.')
+            raise Exception(
+                {
+                    'user_id': 'Not found.',
+                },
+            )
 
         picnic: Picnic | None = await PicnicManager.get_by_id(
             id_=data.picnic_id,
@@ -32,6 +36,10 @@ class UserPicnicManager(BaseManager):
         )
 
         if picnic is None:
-            raise Exception('picnic not found.')
+            raise Exception(
+                {
+                    'picnic_id': 'Not found.',
+                },
+            )
 
         return await super().create(data=data, session=session)

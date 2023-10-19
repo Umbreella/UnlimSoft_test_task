@@ -13,6 +13,7 @@ class UserPicnicCreateSchema(BaseModel):
 class UserPicnicSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int
     user: UserSchema
     picnic: PicnicSchema
 

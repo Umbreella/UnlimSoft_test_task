@@ -159,7 +159,6 @@ class TestPicnicList:
             'id': 1,
             'time': '2023-10-19T08:01:09.478000Z',
             'city': CitySchema.model_validate(city).model_dump(),
-            'users': [],
         }
         real_data = response.json()
 
