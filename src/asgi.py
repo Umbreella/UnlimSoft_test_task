@@ -9,7 +9,6 @@ from src.database import database
 
 def create_app(init_db: bool = True) -> FastAPI:
     app = FastAPI(
-        debug=True,
         title='UnlimSoft',
         docs_url='/api/docs',
     )

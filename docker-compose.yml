@@ -1,8 +1,9 @@
 version: "3.8"
 
 services:
-  backend:
+  unlimsoft_test_task:
     image: umbreella/unlimsoft_test_task:latest
+    container_name: unlimsoft_test_task
     restart: always
     ports:
       - 8000:8000
@@ -10,12 +11,11 @@ services:
       - APP_POSTGRES_USERNAME=postgres
       - APP_POSTGRES_PASSWORD=password
       - APP_POSTGRES_DB=testcrt
-      - APP_POSTGRES_HOST=postgres
+      - APP_POSTGRES_HOST=postgres13
     depends_on:
       - postgres
     networks:
       backend:
-
 
   postgres:
     image: postgres:13-alpine

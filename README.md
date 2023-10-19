@@ -1,46 +1,109 @@
-# Тестовое задание на _Python_-программиста
+# UnlimSoft (REST-API)
 
-В этом репозитории реализовано API приложения для планирования пикников, состоящие из сущностей:
- - Город
- - Пикник
- - Пользователь
- - Регистрация пользователя на пикник
+## Backend
 
-## Задание
- Тестовое задание подразумевает изменение представленного здесь кода для достижения следующих задач:
+![python](https://img.shields.io/badge/python-3776AB?logo=python&logoColor=white&style=for-the-badge&)
+![fastapi](https://img.shields.io/badge/fastapi-009688?logo=fastapi&logoColor=white&style=for-the-badge&)
+![sqlalchemy](https://img.shields.io/badge/sqlalchemy_+_alembic-d71f00?logo=sqlite&logoColor=white&style=for-the-badge&)
+![poetry](https://img.shields.io/badge/poetry-60A5FA?logo=poetry&logoColor=white&style=for-the-badge&)
 
-### Минимальный уровень
-  1. Запустить проект и ознакомиться с его документацией на странице `http://127.0.0.1:8000/redoc/`
-     или `http://127.0.0.1:8000/docs/` 
-     и выполнить каждый из запросов
-  2. Изменить код проекта для получения дополнительных возможностей:
-     - Добавить поиск городов аргументом `q` в запросе `/get-cities/`
-     - Добавить возможность фильтрации пользователей по возрасту(минимальный/максимальный) в запросе `users-list`
-     - Поправить ошибку в запросе `picnic-add`
-     - Добавить метод регистрации на пикник `picnic-register`
-  3. Высказать идеи рефакторинга файла `external_requests.py`
-  4. Описать возможные проблемы при масштабировании проекта
+## Testing
+
+![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
+[![codecov](https://img.shields.io/codecov/c/github/Umbreella/UnlimSoft_test_task?&style=for-the-badge&logo=codecov)](https://codecov.io/gh/Umbreella/UnlimSoft_test_task)
+
+## Database
+
+![postgresql](https://img.shields.io/badge/postgresql-4169E1?logo=postgresql&logoColor=white&style=for-the-badge&)
+
+## Cloud & CI/CD
+
+![docker](https://img.shields.io/badge/docker-2496ED?logo=docker&logoColor=white&style=for-the-badge&)
+![githubactions](https://img.shields.io/badge/githubactions-2088FF?logo=githubactions&logoColor=white&style=for-the-badge&)
+
+---
+
+## Description
+
+[Task Description](TaskDescription.md)
+
+## Getting Started
+
+### Environment variables
+
+To run the application, you need to set all the environment variables:
+
+* **[.env.fastapi](.env)**
+* **[.env.postgres](https://github.com/docker-library/docs/blob/master/postgres/README.md#environment-variables)**
+    * POSTGRES_PASSWORD
+
+## Docker
+
+1. [docker-compose.yaml](docker-compose.yml)
+
+```yaml
+version: "3.8"
+
+services:
+  unlimsoft_test_task:
+    image: umbreella/unlimsoft_test_task:latest
+    container_name: unlimsoft_test_task
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      - APP_POSTGRES_USERNAME=postgres
+      - APP_POSTGRES_PASSWORD=password
+      - APP_POSTGRES_DB=testcrt
+      - APP_POSTGRES_HOST=postgres13
+    depends_on:
+      - postgres
+    networks:
+      backend:
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=testcrt
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      backend:
 
 
-     
-### Продвинутый уровень
-  1. Привести к нормальному виду:
-     - Методы обращения к эндпойнтам
-     - Названия эндпойнтов
-     - Архитектуру и пути обращения к эндпойнтам
-  2. Расписать все входные/выходные поля в документации (`/redoc/` или `/docs/`), описав их классами
-  3. Оптимизировать работу с базой данных в запросе `/all-picnics/`
-  4. Сменить базу данных с SQLite на PostgreSQL
-  5. Отрефакторить файл `external_requests.py`
-  6. Написать тесты
+volumes:
+  postgres_data:
 
+networks:
+  backend:
+```
 
-### Дополнительные задания
-  - Сделать логирование в файл, который не будет очищаться после перезапуска в докере
-  - Описать правильную архитектуру для проекта
+2. Docker-compose run
 
+```commandline
+docker-compose up -d
+```
 
-## Результат выполнения задания
-Результат выполнения должен быть выложен в _общедоступном_ репозитории,
- история коммитов должна показывать выполненную работу
-_Комментарии в коде тоже приветствуются_
+3. Open bash in container
+
+```commandline
+docker exec -it unlimsoft_test_task bash
+```
+
+4. Run migrations
+
+```commandline
+alembic upgrade head
+```
+
+## Endpoints
+
+* REST-API Docs
+
+```
+[your_ip_address]/api/docs/
+```
