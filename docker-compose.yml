@@ -2,16 +2,15 @@ version: "3.8"
 
 services:
   backend:
-    build: .
+    image: umbreella/unlimsoft_test_task:latest
     restart: always
     ports:
       - 8000:8000
     environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=testcrt
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=password
+      - APP_POSTGRES_USERNAME=postgres
+      - APP_POSTGRES_PASSWORD=password
+      - APP_POSTGRES_DB=testcrt
+      - APP_POSTGRES_HOST=postgres
     depends_on:
       - postgres
     networks:
@@ -23,9 +22,9 @@ services:
     container_name: postgres
     restart: always
     environment:
-      - POSTGRES_DB=testcrt
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=testcrt
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
